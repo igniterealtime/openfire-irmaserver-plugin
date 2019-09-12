@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>IRMA attribute verification example</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="irma.js" defer></script>
+    <script type="text/javascript">
+      function doVerificationSession() {
+        const attr = document.getElementById('attr').value;
+        const label = document.getElementById('label').value;
+        const message = document.getElementById('message').value;
+        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
+        const request = !message ? {
+          '@context': 'https://irma.app/ld/request/disclosure/v2',
+          'disclose': [
+            [
+              [ attr ]
+            ]
+          ],
+          ...labelRequest
+        } : {
+          '@context': 'https://irma.app/ld/request/signature/v2',
+          'message': message,
+          'disclose': [
+            [
+              [ attr ]
+            ]
+          ],
+          ...labelRequest
+        };
+        doSession(request).then(function(result) { showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>'); });
+      }
+
+      function doIssuanceSession() {
+        const attrs = document.getElementById('newattrs').value.split(',');
+        doSession({
+          '@context': 'https://irma.app/ld/request/issuance/v2',
+          'credentials': [{
+            'credential': 'irma-demo.MijnOverheid.ageLower',
+            'attributes': { 'over12': attrs[0], 'over16': attrs[1], 'over18': attrs[2], 'over21': attrs[3] }
+          }]
+        }).then(function(result) { showSuccess('Success'); });
+      }
+
+      function doSession(request) {
+        clearOutput();
+        showSuccess('Demo running...');
+
+        const server = document.getElementById('server').value;
+        const authmethod = document.getElementById('method').value;
+        const key = document.getElementById(authmethod === 'publickey' ? 'key-pem' : 'key').value;
+        const requestorname = document.getElementById('requestor').value;
+
+        return irma.startSession(server, request, authmethod, key, requestorname)
+          .then(function(pkg) { return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'}); })
+          .then(function(result) {
+            console.log('Done', result);
+            return result;
+          })
+          .catch(function(err) { showError(err); });
+      }
+
+      window.onload = function() {
+        let u = window.location.href;
+        if (u.endsWith('/'))
+          u = u.substring(0, u.length - 1);
+        document.getElementById('server').value = u;
+        document.getElementById('issuance').addEventListener('click', doIssuanceSession);
+        document.getElementById('verification').addEventListener('click', doVerificationSession);
+        document.getElementById('method').addEventListener('change', methodChanged);
+        methodChanged();
+      };
+
+      // UI handling functions
+      function clearOutput() {
+        const e = document.getElementById('result');
+        e.setAttribute('hidden', 'true');
+        e.classList.remove('succes', 'warning', 'error');
+      }
+      function showError(err) {
+        const e = document.getElementById('result');
+        e.removeAttribute('hidden');
+        e.classList.remove('success');
+        if (err === irma.SessionStatus.Cancelled) {
+          e.classList.add('warning');
+          e.innerText = 'Session was aborted';
+        } else {
+          e.classList.add('error');
+          e.innerText = 'Error occurred: ' + String(err);
+        }
+        throw err;
+      }
+      function showSuccess(text) {
+        const e = document.getElementById('result');
+        e.innerHTML = text;
+        e.removeAttribute('hidden');
+        e.classList.add('success');
+      }
+      function methodChanged() {
+        switch (document.getElementById('method').value) {
+          case 'none':
+            hideElements('key-container', 'key-pem-container', 'requestor-container');
+            break;
+          case 'hmac':
+            hideElements('key-pem-container');
+            showElements('requestor-container', 'key-container');
+            break;
+          case 'token':
+            hideElements('key-pem-container', 'requestor-container');
+            showElements('key-container');
+            break;
+          case 'publickey':
+            hideElements('key-container');
+            showElements('key-pem-container', 'requestor-container');
+            break;
+        }
+      }
+      function hideElements() {
+        for (let i=0; i < arguments.length; i++) document.getElementById(arguments[i]).setAttribute('hidden', 'true');
+      }
+      function showElements() {
+        for (let i=0; i < arguments.length; i++) document.getElementById(arguments[i]).removeAttribute('hidden');
+      }
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <h1>irmajs demo</h1>
+
+      <p>
+        This page contains an IRMA attribute issuance and verification demo.
+      </p>
+      <ul>
+        <li>You should have an <a href="https://github.com/privacybydesign/irmago/tree/master/server/irmad"><code>irma server</code></a> running, with either the <code>no_auth</code> option enabled (default), or you can provide authentication details <a href="#authenticate-session-requests">below</a>.</li>
+        <li>Open the browser console to see log output and error messages.</li>
+      </ul>
+
+      <label for="server" class="label"><code>irma server</code> URL:</label>
+      <input id="server" type="text">
+
+      <div id="result" class="status" hidden></div>
+
+      <h2>Demo 1: attribute issuance</h2>
+      <p>
+          This will issue an <a href="https://privacybydesign.foundation/attribute-index/en/irma-demo.MijnOverheid.ageLower.html"><code>irma-demo.MijnOverheid.ageLower</code></a> credential. Separate four attributes with commas.
+      </p>
+      <label for="newattrs" class="label">Attributes:</label>
+      <input type="text" id="newattrs" value="yes,yes,yes,no"><br/>
+      <button id="issuance">Issue attributes</button>
+
+      <h2>Demo 2: attribute verification</h2>
+      <p>
+          This will verify an IRMA attribute. You can look up attributes that can be verified in the <a href="https://privacybydesign.foundation/attribute-index/en/">IRMA attribute index</a>.
+          A label can optionally be included to clarify your attribute request to the user. When you also include a message, then that message will be signed with an attribute-based signature.
+      </p>
+      <label for="attr" class="label">Attribute:</label>
+      <input id="attr" type="text" value="irma-demo.MijnOverheid.ageLower.over18"><br/>
+      <label for="label" class="label">Label:</label>
+      <input id="label" type="text"><br/>
+      <label for="message" class="label">Message:</label>
+      <input id="message" type="text"><br/>
+      <button id="verification">Verify attribute</button>
+
+      <h3 id="authenticate-session-requests">Authenticate session request</h3>
+      <p>
+        If the <code>no_auth</code> setting of your <code>irma server</code> is disabled, session requests sent to the <code>irma server</code> need to be authenticated, by including an API token in a HTTP header, or signing the request into a <a href="https://jwt.io/">JWT</a>.
+      </p>
+
+      <label for="method" class="label">Method:</label>
+      <select id="method">
+        <option value="none">none</option>
+        <option value="token">token</option>
+        <option value="hmac">hmac</option>
+        <option value="publickey">publickey</option>
+      </select><br/>
+      <div id="requestor-container" hidden>
+          <label for="requestor" class="label">Requestor name:</label>
+          <input type="text" id="requestor"><br/>
+      </div>
+      <div id="key-container" hidden>
+        <label for="key" class="label">Key:</label>
+        <input type="text" id="key"><br/>
+      </div>
+      <div id="key-pem-container" hidden>
+          <label for="key-pem" class="label">Private key (PEM):</label>
+          <textarea id="key-pem" cols="45" rows="10"></textarea><br/>
+      </div>
+
+      <p>
+        <strong>Note:</strong>
+        This demo handles private keys in the user's browser. Do not do this in production!
+        You should sign the JWTs in your server's backend, or if you use an API token, <code>POST</code>
+        the session request directly from your backend to the <code>irma server</code>.
+      </p>
+
+    </div>
+  </body>
+</html>

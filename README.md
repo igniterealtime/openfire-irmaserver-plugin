@@ -8,7 +8,8 @@ This plugin does the following:
 
 * Embeds [irmago](https://github.com/privacybydesign/irmago) the IRMA server, client, and tooling component
 * Exposes irmago web services from openfire using a reverse proxy. Endpoint by default is https://your_server:7443/irmaproxy
-* Provides an Admin UI to configure irmago settings
+* Provides an Admin UI in Openfire to configure irmago settings
+* Provides a demo web page to test your setup. Go to  https://your_server:7443/irmaproxy
 * Controls the irmago binary process, starting and stopping the Linux/Windows image.
 
 ## How to use

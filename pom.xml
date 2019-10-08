@@ -11,9 +11,11 @@
     </parent>
     
     <groupId>org.igniterealtime.openfire</groupId>
-    <artifactId>irma</artifactId>
-    <version>0.0.1</version>
+    <artifactId>irmaserver</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
 
+    <name>IRMA Server</name>
+    <description>Provides an 'I Reveal My Attributes' (IRMA) server embedded in Openfire.</description>
     <build>
         <sourceDirectory>src/java</sourceDirectory> 
         <plugins>

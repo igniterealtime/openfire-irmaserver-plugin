@@ -92,24 +92,24 @@
             </thead>
             <tbody>  
             <tr>
-                <td nowrap  colspan="2">
-                    <input type="checkbox" name="irmaEnabled" ${isEnabled ? "checked" :""}>
-                    <fmt:message key="config.page.configuration.enabled" />       
+                <td nowrap colspan="2">
+                    <input type="checkbox" id="irmaEnabled" name="irmaEnabled" ${isEnabled ? "checked" :""}>
+                    <label for="irmaEnabled"><fmt:message key="config.page.configuration.enabled" /></label>
                 </td>  
             </tr>
             <tr>
                 <td align="left" width="150">
-                    <fmt:message key="config.page.configuration.external.url"/>
+                    <label for="externalUrl"><fmt:message key="config.page.configuration.external.url"/></label>
                 </td>
-                <td><input type="text" size="50" maxlength="100" name="externalUrl"
+                <td><input type="text" size="50" maxlength="100" id="externalUrl" name="externalUrl"
                        value="<c:out value="${externalUrl}"/>">
                 </td>
             </tr>             
             <tr>
                 <td align="left" width="150">
-                    <fmt:message key="config.page.configuration.ipaddr"/>
+                    <label for="ipaddr"><fmt:message key="config.page.configuration.ipaddr"/></label>
                 </td>
-                <td><input type="text" size="50" maxlength="100" name="ipaddr"
+                <td><input type="text" size="50" maxlength="100" id="ipaddr" name="ipaddr"
                        value="<c:out value="${ipAddress}"/>">
                 </td>                               
             </tr>             
@@ -125,7 +125,7 @@
             </thead>
             <tbody>         
             <tr>
-                <th colspan="2"><input type="submit" name="update" value="<fmt:message key="config.page.configuration.submit" />"><fmt:message key="config.page.configuration.restart.warning"/></th>
+                <th colspan="2"><input type="submit" name="update" value="<fmt:message key="config.page.configuration.submit" />">&nbsp;<fmt:message key="config.page.configuration.restart.warning"/></th>
             </tr>       
             </tbody>            
         </table> 

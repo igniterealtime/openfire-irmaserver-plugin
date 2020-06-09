@@ -45,6 +45,9 @@
     }
 
     pageContext.setAttribute("errors", errors);
+    pageContext.setAttribute("isEnabled", JiveGlobals.getProperty("irma.enabled", "true"));
+    pageContext.setAttribute("externalUrl", JiveGlobals.getProperty("irma.external.url", plugin.getExternalUrl()) );
+    pageContext.setAttribute("ipAddress", JiveGlobals.getProperty("irma.ipaddr", plugin.getIpAddress()));
 %>
 <html>
 <head>
@@ -90,7 +93,7 @@
             <tbody>  
             <tr>
                 <td nowrap  colspan="2">
-                    <input type="checkbox" name="irmaEnabled"<%= (JiveGlobals.getProperty("irma.enabled", "true").equals("true")) ? " checked" : "" %>>
+                    <input type="checkbox" name="irmaEnabled" ${isEnabled ? "checked" :""}>
                     <fmt:message key="config.page.configuration.enabled" />       
                 </td>  
             </tr>
@@ -99,7 +102,7 @@
                     <fmt:message key="config.page.configuration.external.url"/>
                 </td>
                 <td><input type="text" size="50" maxlength="100" name="externalUrl"
-                       value="<%= JiveGlobals.getProperty("irma.external.url", plugin.getExternalUrl()) %>">
+                       value="<c:out value="${externalUrl}"/>">
                 </td>
             </tr>             
             <tr>
@@ -107,7 +110,7 @@
                     <fmt:message key="config.page.configuration.ipaddr"/>
                 </td>
                 <td><input type="text" size="50" maxlength="100" name="ipaddr"
-                       value="<%= JiveGlobals.getProperty("irma.ipaddr", plugin.getIpAddress()) %>">
+                       value="<c:out value="${ipAddress}"/>">
                 </td>                               
             </tr>             
             </tbody>

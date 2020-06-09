@@ -11,7 +11,7 @@
     String errorMessage = null;
 
     // Get handle on the plugin
-    PluginImpl plugin = (PluginImpl) XMPPServer.getInstance().getPluginManager().getPlugin("irma");
+    PluginImpl plugin = (PluginImpl) XMPPServer.getInstance().getPluginManager().getPlugin("irmaserver");
 
     if (update)
     {    

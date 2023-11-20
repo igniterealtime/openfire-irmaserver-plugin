@@ -12,7 +12,7 @@
     
     <groupId>org.igniterealtime.openfire</groupId>
     <artifactId>irmaserver</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
 
     <name>IRMA Server</name>
     <description>Provides an 'I Reveal My Attributes' (IRMA) server embedded in Openfire.</description>
